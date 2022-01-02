@@ -1,0 +1,27 @@
+unalias getall;
+unalias scanner;
+unalias contracts;
+unalias startold;
+unalias stop;
+unalias plan;
+unalias list;
+unalias buymax;
+unalias buys;
+unalias dels;
+unalias find;
+unalias xp;
+unalias buyall;
+unalias start;
+
+alias get="run getcode.js";
+alias contracts="run Other/Pobiega/findContracts.js";
+alias stop="run Other/Pobiega/stop.js";
+alias plan="run Other/Pobiega/privateServers.js plan";
+alias list="run Other/Pobiega/privateServers.js list";
+alias buymax="run Other/Pobiega/privateServers.js buy 1048576";
+alias buys="run Other/Pobiega/privateServers.js buy";
+alias dels="run Other/Pobiega/privateServers.js delete";
+alias find="run Other/Utility/find_server.js --tail";
+alias xp="run Other/Pobiega/xpfarm.js";
+alias buyall="buy BruteSSH.exe; buy FTPCrack.exe; buy relaySMTP.exe; buy HTTPWorm.exe; buy SQLInject.exe; buy ServerProfiler.exe; buy DeepscanV1.exe; buy DeepscanV2.exe; buy AutoLink.exe;";
+alias start="run /deamons/controller/deamon.js";

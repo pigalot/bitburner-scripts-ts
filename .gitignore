@@ -1,3 +1,11 @@
+# Custom stuff
+/dist
+/temp
+
+*.code-workspace
+
+# General Node stuff
+
 # Logs
 logs
 *.log
