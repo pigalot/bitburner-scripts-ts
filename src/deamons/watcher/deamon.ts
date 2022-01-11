@@ -20,6 +20,7 @@ export async function main(ns: NS) {
 // TODO Update this to make a hidable popup html pannel with the same info
 
 class WatcherDeamon extends Deamon {
+
     constructor(ns: NS) {
         super(ns);
     }
@@ -29,13 +30,20 @@ class WatcherDeamon extends Deamon {
             await this.ns.sleep(1);
             this.ns.clearLog();
 
+            let totalProcs = 0;
+            for(let i = 1; i < this.resourceManagerData.resources.length; i++) {
+                const server = this.resourceManagerData.resources[i];
+                const scripts = this.ns.ps(server.name);
+                totalProcs += scripts.reduce((a, c) => c.filename === "grow.js" || c.filename === "hack.js" || c.filename === "weaken.js" ? a+1: a, 0);
+            }
+
             const target = this.targeterData.targets[0];
             this.ns.print(' SERVER NAME     $/ms    $/ms/GB   cost     hN     hAmt cL(ms) totProcs');
             const outS = target.serverData.name.padStart(10)
-                + this.ns.nFormat(target.moneyPerMs, '0.00e+0').padStart(13)
-                + this.ns.nFormat(target.score, '0.00e+0').padStart(9)
+                + this.ns.nFormat(target.moneyPerMs, '$0.0[00]a').padStart(13)
+                + this.ns.nFormat(target.score, '$0.0[00]a').padStart(9)
                 + this.ns.nFormat(target.ramCost / this.resourceManagerData.totalRam, '0.0%').padStart(7)
-                + this.ns.nFormat(target.hackThreads, '0.00e+0').padStart(9)
+                + this.ns.nFormat(target.hackThreads, '0.0[00]a').padStart(9)
                 + this.ns.nFormat(target.amountHacked, '0.0%').padStart(7)
                 + this.ns.nFormat(target.cycleLength, '0.0').padStart(7)
                 + this.ns.nFormat(target.totalProcesses, '0,000').padStart(9)
@@ -46,12 +54,30 @@ class WatcherDeamon extends Deamon {
             const secD = this.ns.nFormat(this.ns.getServerSecurityLevel(target.serverData.name) - target.serverData.security, '+0').padStart(4);
 
             const current = this.ns.getServerMoneyAvailable(target.serverData.name);
-            const monS = ('$' + this.ns.nFormat(target.serverData.money, '0.0e+0')).padStart(9)
-                    + ('  $' + this.ns.nFormat(current, '0.0e+0')).padStart(9);
+            const monS = (this.ns.nFormat(target.serverData.money, '$0.0[00]a')).padStart(9)
+                    + ('  ' + this.ns.nFormat(current, '$0.0[00]a')).padStart(9);
             const monP = this.ns.nFormat(current / target.serverData.money, '%').padStart(5);
 
             this.ns.print(' SERVER NAME  Defense  $ %      Max$     Cur$');
             this.ns.print(target.serverData.name.padStart(10) + secS.padStart(6) + secD + ' ' + monP + ' ' + monS);
+
+            this.ns.print("");
+
+            this.ns.print(' Running Procceses       Total Ram');
+            this.ns.print(totalProcs.toString().padStart(10) + this.resourceManagerData.totalRam.toString().padStart(19));
+
+
+            if (this.stonksData.isStonks) {
+                this.ns.print("");
+                this.ns.print('   Bid      Ask       forcing     forcast    profit');
+                const bid = this.ns.stock.getBidPrice(this.stonksData.stonksSymble).toFixed(2).toString();
+                const ask = this.ns.stock.getAskPrice(this.stonksData.stonksSymble).toFixed(2).toString();
+                const [shares, avgPx, sharesShort, avgPxShort] = this.ns.stock.getPosition(this.stonksData.stonksSymble);
+                const type = shares > 0 ? "long" : sharesShort > 0 ? "short" : "none";
+                const profit = type === "none" ? "NA" : this.ns.nFormat(this.ns.stock.getSaleGain(this.stonksData.stonksSymble, type === "long" ? shares : sharesShort, type), "$0.0[00]a");
+                this.ns.print(bid.padStart(2).padEnd(8-bid.length) + ask.padStart(10).padEnd(8-ask.length) + (this.stonksData.effectHack ? "down" : "up  ").padStart(9) + this.stonksData.forcast.ask.toFixed(2).toString().padStart(12) + "      " + profit);
+
+            }
         }
     }
 }

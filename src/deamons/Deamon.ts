@@ -8,6 +8,8 @@ import { GameInfoData } from "/deamons/gameInfo/data.js";
 import { SpiderData } from "/deamons/spider/data.js";
 import { ResourceManagerData } from "/deamons/resourceManager/data.js";
 
+import { StonksData } from "/deamons/stonks/data.js";
+
 import { TargeterData } from "/deamons/targeter/data.js";
 
 import { SchedulerData } from "/deamons/scheduler/data.js";
@@ -23,6 +25,8 @@ export class Deamon {
     protected spiderData: SpiderData;
     protected resourceManagerData: ResourceManagerData;
 
+    protected stonksData: StonksData;
+
     protected targeterData: TargeterData;
 
     protected schedulerData: SchedulerData;
@@ -37,6 +41,8 @@ export class Deamon {
 
         this.spiderData = SpiderData.instance(ns);
         this.resourceManagerData = ResourceManagerData.instance(ns);
+
+        this.stonksData = StonksData.instance(ns);
 
         this.targeterData = TargeterData.instance(ns);
 

@@ -4,9 +4,11 @@ import { Deamon } from "/deamons/Deamon.js";
 
 import { getGrowTime, getHackTime, getWeakenTime, coreMult } from "gameFunctions.js";
 import { ServerData } from "/models/ServerData";
+import { Data } from "../Data";
 
 export async function main(ns: NS) {
     ns.disableLog("ALL");
+    ns.enableLog("exec");
 
     //ns.disableLog("sleep");
     ns.clearLog();
@@ -60,7 +62,7 @@ class SchedulerDeamon extends Deamon {
             if (Date.now() > testServerLaunch 
                 && (
                     ((this.ns.getServerSecurityLevel(target.serverData.name) - SecurityTol) > 0) 
-                    || ((this.ns.getServerMoneyAvailable(target.serverData.name) - MoneyTol) < 0)
+                    || (((this.ns.getServerMoneyAvailable(target.serverData.name) - MoneyTol) < 0))
                     )) {
                 this.ns.print("collission?")
                 for (let k = 0; k < 5 && this.schedulerData.hackPids.length > 0; k++) { //kill a few of the oldest hacks
@@ -75,17 +77,17 @@ class SchedulerDeamon extends Deamon {
                 weakenLaunch = Date.now() + target.cycleLength;
             }
             if (Date.now() > growLaunch) {
-                this.launchAttack('g', target.serverData.name, target.growThreads);
+                this.launchAttack('g', target.serverData.name, target.growThreads, this.stonksData.effectGrow);
                 growLaunch = Date.now() + target.cycleLength;
             }
             if (Date.now() > hackLaunch) {
-                this.launchAttack('h', target.serverData.name, target.hackThreads);
+                this.launchAttack('h', target.serverData.name, target.hackThreads, this.stonksData.effectHack);
                 hackLaunch = Date.now() + target.cycleLength;
             }
         }
     }
 
-    launchAttack(type: string, target: string, threads = 1) {
+    launchAttack(type: string, target: string, threads = 1, stonks = false) {
         //const sfi = (type == 'h') ? 3 : (type == 'g') ? 5 : 1; //default to w
         const script = (type == 'h') ? "hack.js" : (type == 'g') ? "grow.js" : "weaken.js";
         const size = this.ns.getScriptRam(script);
@@ -97,7 +99,7 @@ class SchedulerDeamon extends Deamon {
                 //adjust threads needed if server has more cores
                 const coreMultiplyer = ((resource.name === 'home') && (type == 'w' || type == 'g')) ? coreMult(resource.server.cpuCores) : 1.0;
                 const th = Math.min(Math.max(1, Math.ceil(threads / coreMultiplyer)), maxth); //threads to assign to this attack
-                const pid = this.ns.exec(script, resource.name, th, target, Math.random());
+                const pid = this.ns.exec(script, resource.name, th, target, th, stonks, Date.now(), i);
                 if (pid > 0) {
                     threads -= Math.floor(th * coreMultiplyer);
                     if (type == 'h') { this.schedulerData.hackPids.push(pid); }

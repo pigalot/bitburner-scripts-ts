@@ -36,8 +36,7 @@ class ControllerDeamon extends Deamon {
         this.spiderData.initialised = false;
         this.resourceManagerData.initialised = false;
         this.targeterData.initialised = false;
-
-        this.ns.run("/deamons/watcher/deamon.js");
+        this.stonksData.initialised = false;
 
         // Get basic game info like bitNode multipliers
         this.ns.run("/deamons/gameInfo/deamon.js");
@@ -58,13 +57,19 @@ class ControllerDeamon extends Deamon {
             await this.ns.sleep(100);
         } while (this.resourceManagerData.initialised === false)
 
+        this.ns.run("/deamons/stonks/deamon.js");
+        do {
+            await this.ns.sleep(100);
+        } while (this.stonksData.initialised === false)
+
         this.ns.run("/deamons/targeter/deamon.js");
         do {
             await this.ns.sleep(100);
         } while (this.targeterData.initialised === false)
-        console.log(this.targeterData);
 
         this.ns.run("/deamons/scheduler/deamon.js");
+
+        this.ns.run("/deamons/watcher/deamon.js");
     }
 
     // async save() {
