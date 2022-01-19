@@ -17,23 +17,29 @@ class SpiderDeamon extends Deamon {
     }
 
     public async run() {
-        const servers = ['home'];
-        this.spiderData.servers = [];
-        this.spiderData.routedServers = [];
-        for (const server of servers) {
-            for (const childServer of (this.ns.scan(server).slice(server === 'home' ? 0 : 1))) { //home has no parent to skip
-                servers.push(childServer);
-                const serverData = new ServerData(this.ns.getServer(childServer));
-                serverData.hasRootAccess = this.getRootAccess(serverData);
-                this.spiderData.servers.push(serverData);
-                await this.ns.scp(["hack.js", "grow.js", "weaken.js"], "home", childServer);
-                if (serverData.hasRootAccess) this.spiderData.routedServers.push(serverData);
+        while(true) {
+            const servers = ['home'];
+            this.spiderData.servers = [];
+            this.spiderData.routedServers = [];
+            for (const server of servers) {
+                for (const childServer of (this.ns.scan(server).slice(server === 'home' ? 0 : 1))) { //home has no parent to skip
+                    servers.push(childServer);
+                    const serverData = new ServerData(this.ns.getServer(childServer));
+                    serverData.hasRootAccess = this.getRootAccess(serverData);
+                    // temp fix
+                    const temp = this.ns.getServer(childServer);
+                    serverData.hasRootAccess = temp.hasAdminRights;
+                    this.spiderData.servers.push(serverData);
+                    await this.ns.scp(["hack.js", "grow.js", "weaken.js", "stanek.js"], "home", childServer);
+                    if (serverData.hasRootAccess) this.spiderData.routedServers.push(serverData);
+                }
             }
+            for (const target of Object.keys(this.spiderData.routes)) {
+                this.recursiveScan('', 'home', target, this.spiderData.routes[target]);
+            }
+            this.spiderData.initialised = true;
+            await this.ns.sleep(10 * 1000);
         }
-        for (const target of Object.keys(this.spiderData.routes)) {
-            this.recursiveScan('', 'home', target, this.spiderData.routes[target]);
-        }
-        this.spiderData.initialised = true;
     }
 
     private recursiveScan(parent : string, server : string, target : string, route  : string[]) {

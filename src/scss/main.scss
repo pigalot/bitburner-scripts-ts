@@ -1,0 +1,73 @@
+#pigalot {
+    .drag {
+        position: fixed;
+
+        z-index: 1500;
+            
+        top: 0;
+        right: 150px;
+
+        #dashboard {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 16px;
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+
+            background-color: #000000;
+
+            max-width: 1000px;
+
+            border: #2C2E33 solid 1px;
+
+            header.dashboard-header {
+                cursor: grab;
+                user-select: none;
+
+                text-align: center;
+                border-bottom: #2C2E33 solid 1px;
+                padding: 10px;
+
+                h1 {
+                    margin: 0;
+                    font-size: 1.125em;
+                }
+            }
+
+            .card {
+                background-color: #191c24;
+
+                padding: 1.75em 1.5em;
+                margin: 1.5em;
+
+                border-radius: 0.25em;
+                border: 1px solid rgba(0, 0, 0, 0.125);
+
+                header {
+                    h1 {
+                        margin-top: 0;
+                        margin-bottom: 0.2em;
+                        text-transform: capitalize;
+                        font-size: 1.125em;
+                    }
+                }
+
+                table {
+                    color: #6c7293;
+                    border-collapse: collapse;
+
+                    tr {
+                        border-bottom: #2C2E33 solid 1px;
+
+                        td,
+                        th {
+                            padding: 0.2em 0.4em;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

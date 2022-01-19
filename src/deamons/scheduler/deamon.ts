@@ -31,35 +31,46 @@ class SchedulerDeamon extends Deamon {
 
     async run() {
         const startTime = Date.now();
-        const target = this.targeterData.targets[0];
-        if (!target) return;
-
-        const player = this.ns.getPlayer();
-
-        const hackTime = getHackTime(target.serverData.server, player); // time required to finish a minSec Hack //
-        const growTime = getGrowTime(target.serverData.server, player); // time required to finish a minSec Grow //
-        const weakenTime = getWeakenTime(target.serverData.server, player); // time required to finish a minSec Weaken //
-
-        let weakenLaunch = startTime + 500; // weaken launch
-        let growLaunch = weakenLaunch + weakenTime - growTime - 200; //grow launch
-        let hackLaunch = growLaunch + growTime - hackTime + 100; //hack launch
-
-        const MoneyTol = (1.0 - target.amountHacked) * 0.9 * target.serverData.money; //don't allow more than 1 hack to hit
-        const SecurityTol = target.serverData.security + 1; //don't allow sec to rise by more than 1
-
+        this.schedulerData.hackPids = [];
         let testServerLaunch = Date.now(); //test server launch
 
-        this.schedulerData.hackPids = [];
+        let LastTarget = "";
+        let lastScore = 0;
+
+        let weakenLaunch = 0
+        let growLaunch = 0;
+        let hackLaunch = 0;
+
+        let MoneyTol = 0;
+        let SecurityTol = 0;
 
         while (true) {
             await this.ns.sleep(1);
+            const target = this.targeterData.targets[0];
+            if (!target) return;
+            if (target.serverData.name != LastTarget && target.score !== lastScore) {
+                const player = this.ns.getPlayer();
+
+                const hackTime = getHackTime(target.serverData.server, player); // time required to finish a minSec Hack //
+                const growTime = getGrowTime(target.serverData.server, player); // time required to finish a minSec Grow //
+                const weakenTime = getWeakenTime(target.serverData.server, player); // time required to finish a minSec Weaken //
+
+                weakenLaunch = startTime + 500; // weaken launch
+                growLaunch = weakenLaunch + weakenTime - growTime - 200; //grow launch
+                hackLaunch = growLaunch + growTime - hackTime + 100; //hack launch
+
+                MoneyTol = (1.0 - target.amountHacked) * 0.9 * target.serverData.money; //don't allow more than 1 hack to hit
+                SecurityTol = target.serverData.security + 1; //don't allow sec to rise by more than 1
+
+                LastTarget = target.serverData.name;
+            }
 
             if (this.schedulerData.hackPids.length > target.hackProcesses) {
                 this.schedulerData.hackPids.slice(0, this.schedulerData.hackPids.length - target.hackProcesses);
             }
 
             //collission detection
-            if (Date.now() > testServerLaunch 
+            if (Date.now() > testServerLaunch && this.schedulerData.hackPids.length > 0
                 && (
                     ((this.ns.getServerSecurityLevel(target.serverData.name) - SecurityTol) > 0) 
                     || (((this.ns.getServerMoneyAvailable(target.serverData.name) - MoneyTol) < 0))

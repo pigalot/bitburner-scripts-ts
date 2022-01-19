@@ -2,7 +2,7 @@ import { NS } from "/../types/NetscriptDefinitions";
 import { Data } from "/deamons/Data.js";
 
 export class StonksData extends Data {
-    public isStonks: boolean = true;
+    public isStonks: boolean = false;
     public stonksServer: string = "joesguns";
     public stonksSymble: string = "JGN";
 

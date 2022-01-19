@@ -13,6 +13,7 @@ import { StonksData } from "/deamons/stonks/data.js";
 import { TargeterData } from "/deamons/targeter/data.js";
 
 import { SchedulerData } from "/deamons/scheduler/data.js";
+import { SleevesData } from "/deamons/sleeves/data.js";
 
 export class Deamon {
     protected ns: NS;
@@ -31,6 +32,8 @@ export class Deamon {
 
     protected schedulerData: SchedulerData;
 
+    protected sleevesData: SleevesData;
+
     constructor(ns: NS) {
         this.ns = ns;
 
@@ -47,5 +50,7 @@ export class Deamon {
         this.targeterData = TargeterData.instance(ns);
 
         this.schedulerData = SchedulerData.instance(ns);
+
+        this.sleevesData = SleevesData.instance(ns);
     }
 }

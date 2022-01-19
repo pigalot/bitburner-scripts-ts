@@ -2,12 +2,17 @@ import { NS } from "/../types/NetscriptDefinitions";
 
 import { Deamon } from "/deamons/Deamon.js";
 
+// @ts-ignore
+import { Watcher } from "/jsx/index.js";
+
 export async function main(ns: NS) {
     ns.disableLog("ALL");
     ns.clearLog();
-    ns.tail();
+    //ns.tail();
 
     const deamon = new WatcherDeamon(ns);
+    //await deamon.setupReact();
+    //await deamon.update();
     await deamon.run();
 }
 
@@ -23,6 +28,54 @@ class WatcherDeamon extends Deamon {
 
     constructor(ns: NS) {
         super(ns);
+    }
+
+    async setupReact() {
+        const doc = globalThis["document"];
+        if (!doc.getElementById("pigalot")) {
+            const unclickable = doc.getElementById("unclickable");
+
+            const pigalot = doc.createElement("div");
+            pigalot.id = "pigalot";
+            unclickable?.insertAdjacentElement("beforebegin", pigalot);
+
+            const css = doc.querySelector("head");
+            // @ts-ignore
+            const style = doc.createElement("style");
+            style.id = "pigalot-style";
+            css?.insertAdjacentElement("beforeend", style);
+            style.insertAdjacentHTML("beforebegin", `<link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">`);
+        }
+
+        const style = doc.getElementById("pigalot-style");
+        const cssContent = this.ns.read("/css/main.txt");
+        if (style !== null) style.innerHTML = cssContent;
+
+        // @ts-ignore
+        ReactDOM.render(
+            // @ts-ignore
+            React.createElement(Watcher),
+            doc.getElementById("pigalot")
+        );
+    }
+    
+    async update() {
+        // @ts-ignore
+        globalThis['pigalotGameState'] = globalThis['pigalotGameState'] ?? {};
+        // @ts-ignore
+        globalThis['pigalotGameState'].target = globalThis['pigalotGameState'].target ?? {};
+        // @ts-ignore
+        const state = globalThis['pigalotGameState'];
+
+        while(true) {
+            const target = this.targeterData.targets[0];
+            state.target.name = target.serverData.name;
+
+            if (state.target?.update) state.target?.update();
+            await this.ns.sleep(1000);
+        }
     }
 
     async run() {

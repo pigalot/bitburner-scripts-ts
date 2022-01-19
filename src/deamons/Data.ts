@@ -12,6 +12,8 @@ export class Data {
         // Set/Get our main data object
         // @ts-ignore
         ns.getPortHandle(19).pigalot.data = ns.getPortHandle(19).pigalot.data ?? {};
+        // @ts-ignore
+        globalThis["pigalot-data"] = globalThis["pigalot-data"] ?? ns.getPortHandle(19).pigalot.data;
 
         // @ts-ignore
         return ns.getPortHandle(19).pigalot.data;
